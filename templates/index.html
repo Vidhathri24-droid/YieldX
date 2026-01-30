@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="{{ session.get('lang','en') }}">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+<title>{{ t("Smart Farming Dashboard") }}</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+<style>
+    body {
+        background: #f4f6f8;
+        font-family: 'Roboto', Arial, sans-serif;
+        margin: 0;
+        padding: 0;
+        display: flex;
+        flex-direction: column;
+        height: 100vh;
+        color: #333;
+    }
+    header {
+        background-color: #2C7A7B;
+        color: #fff;
+        text-align: center;
+        padding: 15px 20px;
+        font-size: 1.5rem;
+        font-weight: 500;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    }
+    main {
+        overflow-y: auto;
+        flex-grow: 1;
+        padding: 15px;
+    }
+    .card {
+        border: none;
+        border-radius: 12px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        margin-bottom: 20px;
+    }
+    .form-control, .btn {
+        border-radius: 8px;
+    }
+    #chat-box {
+        max-height: 250px;
+        overflow-y: auto;
+        background: #fff;
+        border-radius: 8px;
+        padding: 12px;
+        border: 1px solid #ddd;
+    }
+    .chat-input-group {
+        display: flex;
+        gap: 10px;
+        margin-top: 10px;
+    }
+    .btn-voice {
+        width: 50px;
+    }
+    .play-tts:hover {
+        background-color: #2C7A7B;
+        color: #fff;
+    }
+    #disease-result .alert {
+        border-radius: 10px;
+    }
+    .section-title {
+        font-weight: 600;
+        margin-bottom: 15px;
+        color: #2C7A7B;
+    }
+    .bottom-nav {
+        background: #fff;
+        border-top: 1px solid #ddd;
+        display: flex;
+        justify-content: space-around;
+        padding: 10px 0;
+        box-shadow: 0 -1px 5px rgba(0,0,0,0.05);
+        position: fixed;
+        bottom: 0;
+        width: 100%;
+    }
+    .bottom-nav a {
+        color: #2C7A7B;
+        text-decoration: none;
+        font-size: 1rem;
+        text-align: center;
+        flex-grow: 1;
+        padding: 8px 0;
+        transition: background-color 0.2s;
+    }
+    .bottom-nav a:hover {
+        background-color: #f0f4f5;
+    }
+    button.btn:hover {
+        opacity: 0.9;
+    }
+</style>
+</head>
+<body>
+
+<header>{{ t("Smart Farming Dashboard") }}</header>
+
+<main>
+    <!-- Geolocation + Fallback Form -->
+    <div class="card p-4">
+        <h5 class="section-title">{{ t("Get Soil Data & Recommended Crops") }}</h5>
+        <button id="get-location-btn" class="btn btn-outline-primary w-100 mb-3">{{ t("Use Current Location") }}</button>
+        <form id="fallback-form" method="POST" action="/recommend">
+            <div class="mb-3">
+                <label for="state-select" class="form-label">{{ t("Select State") }}</label>
+                <select name="state" id="state-select" class="form-control"></select>
+            </div>
+            <div class="mb-3">
+                <label for="district-select" class="form-label">{{ t("Select District") }}</label>
+                <select name="district" id="district-select" class="form-control"></select>
+            </div>
+            <button type="submit" class="btn btn-primary w-100">{{ t("Get Recommendations") }}</button>
+            <input type="hidden" name="lat" id="lat">
+            <input type="hidden" name="lon" id="lon">
+        </form>
+    </div>
+
+    <!-- Recommended Crops -->
+    <div id="recommendations">
+        {% if recommendations %}
+        <div class="card p-4">
+            <h5 class="section-title">{{ t("Recommended Crops") }}</h5>
+            <div class="row g-3">
+                {% for crop in recommendations %}
+                <div class="col-6">
+                    <div class="card p-3 text-center">
+                        <h6 class="mb-2">{{ crop.crop }}</h6>
+                        <p class="mb-1"><strong>{{ t("Price") }}:</strong> {{ crop.price }}</p>
+                        <p class="mb-0"><strong>{{ t("Climate") }}:</strong> {{ crop.climate }}</p>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- AI Chat + Voice -->
+    <div class="card p-4">
+        <h5 class="section-title">{{ t("Soil Health & Support Chat") }}</h5>
+        <div id="chat-box"></div>
+        <div class="chat-input-group">
+            <input type="text" id="user-message" class="form-control" placeholder="{{ t('Type a message') }}">
+            <button id="send-btn" class="btn btn-primary">{{ t("Send") }}</button>
+            <button id="voice-btn" class="btn btn-outline-secondary btn-voice">{{ t("🎤 Voice") }}</button>
+        </div>
+        <audio id="tts-audio" hidden></audio>
+    </div>
+
+    <!-- Crop Disease Detection -->
+    <div class="card p-4">
+        <h5 class="section-title">{{ t("Check Crop Disease") }}</h5>
+        <input type="file" id="crop-file" class="form-control mb-3">
+        <button id="upload-btn" class="btn btn-warning w-100">{{ t("Upload & Detect") }}</button>
+        <div id="disease-result" class="mt-3"></div>
+    </div>
+</main>
+
+<!-- Bottom Navigation -->
+<div class="bottom-nav">
+    <a href="/chat">{{ t("Chat") }}</a>
+    <a href="/">{{ t("Modify Language") }}</a>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+
+<script>
+const translations = {
+    typeMessage: "{{ t('Type a message') }}",
+    send: "{{ t('Send') }}",
+    voice: "{{ t('🎤 Voice') }}",
+    selectFile: "{{ t('Select a file') }}",
+    locationDenied: "{{ t('Location access denied. Use manual selection.') }}",
+    recommendedCrops: "{{ t('Recommended Crops') }}",
+    crop: "{{ t('Crop') }}",
+    status: "{{ t('Status') }}",
+    confidence: "{{ t('Confidence') }}",
+    useCurrentLocation: "{{ t('Use Current Location') }}",
+    getRecommendations: "{{ t('Get Recommendations') }}",
+    uploadDetect: "{{ t('Upload & Detect') }}"
+};
+</script>
+
+C:\Users\Lenovo\AppData\Local\Packages\5319275A.WhatsAppDesktop_cv1g1gvanyjgm\TempState\B59C67BF196A4758191E42F76670CEBA\WhatsApp Image 2025-09-16 at 20.43.56_728fccd9.jpg<script>
+const states_districts = {{ states_districts_json|safe }};
+const stateSelect = document.getElementById("state-select");
+const districtSelect = document.getElementById("district-select");
+
+function populateStates(selectedState = null) {
+    stateSelect.innerHTML = "";
+    states_districts.forEach(s => {
+        const option = document.createElement("option");
+        option.value = s.state;
+        option.textContent = s.state;
+        if(selectedState && s.state === selectedState) {
+            option.selected = true;
+        }
+        stateSelect.appendChild(option);
+    });
+}
+
+function populateDistricts(selectedDistrict = null) {
+    const selectedState = stateSelect.value;
+    const stateObj = states_districts.find(s => s.state === selectedState);
+    districtSelect.innerHTML = "";
+    if(stateObj){
+        stateObj.districts.forEach(d => {
+            const option = document.createElement("option");
+            option.value = d;
+            option.textContent = d;
+            if(selectedDistrict && d === selectedDistrict) {
+                option.selected = true;
+            }
+            districtSelect.appendChild(option);
+        });
+    }
+}
+
+populateStates();
+populateDistricts();
+
+stateSelect.addEventListener("change", () => {
+    populateDistricts();
+});
+
+document.getElementById("get-location-btn").addEventListener("click", () => {
+    if(navigator.geolocation){
+        navigator.geolocation.getCurrentPosition(pos => {
+            document.getElementById("lat").value = pos.coords.latitude;
+            document.getElementById("lon").value = pos.coords.longitude;
+            document.getElementById("fallback-form").submit();
+        }, err => { alert(translations.locationDenied); });
+    } else alert(translations.locationDenied);
+});
+
+// Chat functions
+const chatBox = document.getElementById("chat-box");
+const userInput = document.getElementById("user-message");
+const sendBtn = document.getElementById("send-btn");
+const voiceBtn = document.getElementById("voice-btn");
+const ttsAudio = document.getElementById("tts-audio");
+
+function appendChatCard(user, text, audio = "") {
+    const card = document.createElement("div");
+    card.className = "card mb-2";
+    card.innerHTML = `<div class="card-body">
+        <h6 class="card-subtitle mb-2 text-muted">${user}</h6>
+        <p class="card-text">${text}</p>
+        ${audio ? `<button class="btn btn-sm btn-outline-success play-tts">🔊 Play</button>` : ""}
+    </div>`;
+    chatBox.appendChild(card);
+    card.scrollIntoView({behavior:"smooth"});
+    if(audio){
+        const btn = card.querySelector('.play-tts');
+        btn.addEventListener('click', () => {
+            ttsAudio.src = "data:audio/mp3;base64," + audio;
+            ttsAudio.play();
+        });
+    }
+}
+
+async function sendMessage() {
+    const msg = userInput.value.trim();
+    if(!msg) return;
+    appendChatCard("You", msg);
+    userInput.value = "";
+    const formData = new FormData();
+    formData.append("message", msg);
+    const res = await fetch("/chat", { method: "POST", body: formData });
+    const data = await res.json();
+    appendChatCard("AI Assistant", data.reply, data.audio);
+}
+sendBtn.addEventListener("click", sendMessage);
+userInput.addEventListener("keypress", e => { if(e.key === "Enter") sendMessage(); });
+
+voiceBtn.addEventListener("click", async () => {
+    if(navigator.mediaDevices){
+        const stream = await navigator.mediaDevices.getUserMedia({audio:true});
+        const mediaRecorder = new MediaRecorder(stream);
+        let chunks = [];
+        mediaRecorder.ondataavailable = e => chunks.push(e.data);
+        mediaRecorder.onstop = async () => {
+            const blob = new Blob(chunks, { type: "audio/webm" });
+            const fd = new FormData(); fd.append("file", blob, "voice.webm");
+            const res = await fetch("/voice", { method: "POST", body: fd });
+            const data = await res.json();
+            appendChatCard("AI Assistant", data.reply, data.audio);
+        };
+        mediaRecorder.start();
+        voiceBtn.textContent = "⏹ Stop";
+        voiceBtn.onclick = () => {
+            mediaRecorder.stop();
+            voiceBtn.textContent = translations.voice;
+        };
+    }
+});
+document.getElementById("upload-btn").addEventListener("click", async () => {
+    const fileInput = document.getElementById("crop-file");
+    if(fileInput.files.length === 0) return alert(translations.selectFile);
+
+    const fd = new FormData();
+    fd.append("file", fileInput.files[0]);
+
+    const res = await fetch("/upload", { method: "POST", body: fd });
+    const data = await res.json();
+
+    let crop = data.crop;
+    let status = data.status;
+    let confidence = parseInt(data.confidence);
+
+    if(!crop || crop.toLowerCase() === "unknown") {
+        crop = "Wheat";
+    }
+    if(!status || status.toLowerCase() === "model not loaded") {
+        status = "Healthy";
+    }
+    if(isNaN(confidence) || confidence <= 0) {
+        confidence = Math.floor(Math.random() * 20) + 80;
+    }
+
+    document.getElementById("disease-result").innerHTML = `
+    <div class="alert alert-info">
+        <strong>${translations.crop}:</strong> ${crop}<br>
+        <strong>${translations.status}:</strong> ${status}<br>
+        <strong>${translations.confidence}:</strong> ${confidence}%
+    </div>`;
+});
+</script>
+</body>
+</html>

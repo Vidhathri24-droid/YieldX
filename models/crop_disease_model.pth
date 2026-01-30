@@ -1,0 +1,34 @@
+import torch
+import torch.nn as nn
+
+# Simple CNN for prototype
+class DummyCropDiseaseModel(nn.Module):
+    def __init__(self, num_classes=5):
+        super(DummyCropDiseaseModel, self).__init__()
+        self.conv = nn.Sequential(
+            nn.Conv2d(3, 16, 3, stride=1, padding=1),
+            nn.ReLU(),
+            nn.MaxPool2d(2),
+            nn.Conv2d(16, 32, 3, stride=1, padding=1),
+            nn.ReLU(),
+            nn.MaxPool2d(2)
+        )
+        self.fc = nn.Sequential(
+            nn.Flatten(),
+            nn.Linear(32*56*56, 128),
+            nn.ReLU(),
+            nn.Linear(128, num_classes)
+        )
+
+    def forward(self, x):
+        x = self.conv(x)
+        x = self.fc(x)
+        return x
+
+# Define dummy classes
+classes = ["Healthy", "Powdery Mildew", "Leaf Spot", "Rust", "Blight"]
+
+# Instantiate and save model
+model = DummyCropDiseaseModel(num_classes=len(classes))
+torch.save(model, "crop_disease_model.pth")
+print("Dummy model saved as crop_disease_model.pth")

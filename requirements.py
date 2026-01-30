@@ -1,0 +1,13 @@
+Flask==2.3.2
+Flask-Cors==3.0.10
+Flask-Sock==0.5.0
+googletrans==4.0.0-rc1
+gTTS==2.2.4
+vosk==0.3.45
+torch==2.10.0
+torchvision==0.25.0
+Pillow==10.0.0
+requests==2.31.0
+httpx
+wsproto==1.1.0
+simple-websocket==1.1.0

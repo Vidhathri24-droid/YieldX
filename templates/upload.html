@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Crop Health Detection - YieldX</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body class="bg-light">
+
+  <nav class="navbar navbar-light bg-success shadow-sm">
+    <div class="container-fluid d-flex justify-content-between align-items-center">
+      <span class="navbar-brand mb-0 h1 text-white">🌱 YieldX</span>
+      <a href="{{ url_for('index') }}" class="btn btn-outline-light btn-sm rounded-pill">🏠 Home</a>
+    </div>
+  </nav>
+
+  <div class="container py-5">
+    <div class="card shadow-lg p-4 rounded-4 mx-auto text-center" style="max-width: 600px;">
+      <h3 class="fw-bold mb-4">🩺 Crop Health Detection</h3>
+      <form method="POST" action="/upload" enctype="multipart/form-data">
+        <input type="file" name="file" class="form-control mb-3 rounded-pill" accept="image/*" required>
+        <button type="submit" class="btn btn-outline-success w-100 rounded-pill">Upload & Check</button>
+      </form>
+    </div>
+  </div>
+
+</body>
+</html>

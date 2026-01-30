@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Voice Chatbot</title>
+</head>
+<body>
+  <h2>🎙️ Live Voice Chat</h2>
+  <button id="startBtn">Start</button>
+  <button id="stopBtn" disabled>Stop</button>
+
+  <h3>Partial Speech:</h3>
+  <p id="partial"></p>
+
+  <h3>Final Transcript:</h3>
+  <p id="final"></p>
+
+  <h3>Bot Reply:</h3>
+  <p id="reply"></p>
+  <audio id="botAudio" controls></audio>
+
+  <script>
+    let ws, processor, audioCtx, source;
+    const startBtn = document.getElementById("startBtn");
+    const stopBtn = document.getElementById("stopBtn");
+    const partial = document.getElementById("partial");
+    const final = document.getElementById("final");
+    const reply = document.getElementById("reply");
+    const botAudio = document.getElementById("botAudio");
+
+    startBtn.onclick = async () => {
+      ws = new WebSocket("ws://127.0.0.1:5000/ws");
+
+      ws.onmessage = (event) => {
+        const data = JSON.parse(event.data);
+
+        if (data.partial) partial.innerText = data.partial;
+
+        if (data.final) {
+          final.innerText += " " + data.final;
+          reply.innerText = data.reply;
+
+          if (data.audio) {
+            botAudio.src = "data:audio/mp3;base64," + data.audio;
+            botAudio.play();
+          }
+        }
+      };
+
+      audioCtx = new AudioContext({ sampleRate: 16000 });
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      source = audioCtx.createMediaStreamSource(stream);
+
+      processor = audioCtx.createScriptProcessor(4096, 1, 1);
+      source.connect(processor);
+      processor.connect(audioCtx.destination);
+
+      processor.onaudioprocess = (e) => {
+        const inputData = e.inputBuffer.getChannelData(0);
+        const buffer = new ArrayBuffer(inputData.length * 2);
+        const view = new DataView(buffer);
+        for (let i = 0; i < inputData.length; i++) {
+          let s = Math.max(-1, Math.min(1, inputData[i]));
+          view.setInt16(i * 2, s < 0 ? s * 0x8000 : s * 0x7FFF, true);
+        }
+        if (ws.readyState === WebSocket.OPEN) ws.send(buffer);
+      };
+
+      startBtn.disabled = true;
+      stopBtn.disabled = false;
+    };
+
+    stopBtn.onclick = () => {
+      processor.disconnect();
+      source.disconnect();
+      ws.close();
+      startBtn.disabled = false;
+      stopBtn.disabled = true;
+    };
+  </script>
+</body>
+</html>

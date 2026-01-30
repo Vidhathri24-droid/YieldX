@@ -1,0 +1,56 @@
+{
+  "Andhra Pradesh": [
+    {"name": "Anantapur", "ph": 6.5, "climate": "Tropical"},
+    {"name": "Chittoor", "ph": 6.5, "climate": "Tropical"},
+    {"name": "Guntur", "ph": 6.5, "climate": "Tropical"},
+    {"name": "Krishna", "ph": 6.5, "climate": "Tropical"},
+    {"name": "Kurnool", "ph": 6.5, "climate": "Tropical"},
+    {"name": "Prakasam", "ph": 6.5, "climate": "Tropical"},
+    {"name": "Srikakulam", "ph": 6.5, "climate": "Tropical"},
+    {"name": "Visakhapatnam", "ph": 6.5, "climate": "Tropical"},
+    {"name": "Vizianagaram", "ph": 6.5, "climate": "Tropical"},
+    {"name": "West Godavari", "ph": 6.5, "climate": "Tropical"}
+  ],
+  "Arunachal Pradesh": [
+    {"name": "Tawang", "ph": 6.5, "climate": "Subtropical"},
+    {"name": "West Kameng", "ph": 6.5, "climate": "Subtropical"},
+    {"name": "East Kameng", "ph": 6.5, "climate": "Subtropical"},
+    {"name": "Papum Pare", "ph": 6.5, "climate": "Subtropical"},
+    {"name": "Kurung Kumey", "ph": 6.5, "climate": "Subtropical"},
+    {"name": "Kra Daadi", "ph": 6.5, "climate": "Subtropical"},
+    {"name": "Lower Subansiri", "ph": 6.5, "climate": "Subtropical"},
+    {"name": "Upper Subansiri", "ph": 6.5, "climate": "Subtropical"},
+    {"name": "West Siang", "ph": 6.5, "climate": "Subtropical"},
+    {"name": "East Siang", "ph": 6.5, "climate": "Subtropical"}
+  ],
+  "Assam": [
+    {"name": "Baksa", "ph": 6.5, "climate": "Tropical"},
+    {"name": "Barpeta", "ph": 6.5, "climate": "Tropical"},
+    {"name": "Biswanath", "ph": 6.5, "climate": "Tropical"},
+    {"name": "Bongaigaon", "ph": 6.5, "climate": "Tropical"},
+    {"name": "Cachar", "ph": 6.5, "climate": "Tropical"},
+    {"name": "Charaideo", "ph": 6.5, "climate": "Tropical"},
+    {"name": "Chirang", "ph": 6.5, "climate": "Tropical"}
+  ],
+  "Bihar": [
+    {"name": "Araria", "ph": 6.5, "climate": "Subtropical"},
+    {"name": "Arwal", "ph": 6.5, "climate": "Subtropical"},
+    {"name": "Aurangabad", "ph": 6.5, "climate": "Subtropical"},
+    {"name": "Banka", "ph": 6.5, "climate": "Subtropical"},
+    {"name": "Begusarai", "ph": 6.5, "climate": "Subtropical"}
+  ],
+  "Chhattisgarh": [
+    {"name": "Balod", "ph": 6.5, "climate": "Tropical"},
+    {"name": "Baloda Bazar", "ph": 6.5, "climate": "Tropical"},
+    {"name": "Balrampur", "ph": 6.5, "climate": "Tropical"},
+    {"name": "Bastar", "ph": 6.5, "climate": "Tropical"},
+    {"name": "Bijapur", "ph": 6.5, "climate": "Tropical"}
+  ],
+  "Delhi": [
+    {"name": "Central Delhi", "ph": 6.5, "climate": "Semi-arid"},
+    {"name": "East Delhi", "ph": 6.5, "climate": "Semi-arid"},
+    {"name": "New Delhi", "ph": 6.5, "climate": "Semi-arid"},
+    {"name": "North Delhi", "ph": 6.5, "climate": "Semi-arid"},
+    {"name": "North East Delhi", "ph": 6.5, "climate": "Semi-arid"}
+  ]
+}
