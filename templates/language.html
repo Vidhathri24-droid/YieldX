@@ -5,11 +5,91 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>{{ t("Select Language") }}</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <style>
+@keyframes slideInLeft {
+  0% {
+    transform: translateX(-120px);
+    opacity: 0;
+  }
+  100% {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+.yieldx-animate {
+  animation: slideInLeft 1.2s ease-out forwards;
+}
+
+/* Option A: Gradient + Farming Illustration */
+
+.bg-container {
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(to bottom, #E3F2FD 0%, #F1F8E9 50%, #E8F5E9 100%);
+  width: 100%;
+  height: 100vh;
+}
+
+/* Faded farming illustration */
+.bg-container::before {
+  content: "";
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background-image: url("/static/images/farming.jpg");
+  background-repeat: no-repeat;
+  background-position: center bottom;
+  background-size: cover; /* fill container */
+  opacity: 0.15; /* slightly visible */
+  z-index: 0;
+}
+
+
+/* Keep content above background */
+.bg-container > * {
+  position: relative;
+  z-index: 1;
+}
+
+/* Mobile optimization */
+@media (max-width: 768px) {
+  .bg-container::before {
+    background-size: contain;
+  }
+}
+
+
+</style>
+
 </head>
-<body class="bg-light d-flex justify-content-center align-items-center vh-100">
+<body>
+<div class="bg-container d-flex flex-column justify-content-center align-items-center vh-100">
+
+
+ <h1 class="fw-bold yieldx-animate"
+    style="
+      font-size: 4.5rem;
+      letter-spacing: 4px;
+      background: linear-gradient(90deg, #1b5e20, #66bb6a);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      opacity: 0;
+    ">
+  YieldX
+ </h1>
+
+ <!-- Page Title -->
+ <div class="text-center mb-4">
+  
+  <p class="text-muted fs-4 fw-medium" >
+    Smart Agriculture Assistant
+  </p>
+ </div>
+
 
   <div class="card shadow-lg p-4" style="max-width: 400px; width: 100%;">
-    <h3 class="text-center mb-3">{{ t("Choose Your Preferred Language") }}</h3>
+    
+    <h3 class="text-center mb-4 fw-semibold">{{ t("Choose Your Preferred Language") }}</h3>
     <form method="post">
       <div class="mb-3">
         <select name="language" class="form-select" required>
@@ -21,7 +101,7 @@
       <button type="submit" class="btn btn-success w-100">{{ t("Continue") }}</button>
     </form>
   </div>
-
+  </div>
 </body>
 </html>
 
